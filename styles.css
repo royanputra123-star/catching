@@ -332,55 +332,94 @@ main { display: flex; flex: 1 0 auto; flex-direction: column; justify-content: c
 .upload-nudge b { color: #bfaaff; font-size: .9em; letter-spacing: .07em; }
 .upload-sparkle { color: var(--yellow); font-size: 16px; }
 
-/* In-game dashboard */
-.game-screen { display: flex; flex: 1 1 auto; flex-direction: column; gap: clamp(9px, 1.35vh, 15px); padding: 8px 0 2px; }
-.game-hud { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(9px, 1.35vw, 18px); }
-.hud-card {
+/* In-game dashboard — floats inside the arena so the play area owns the screen */
+.game-screen { display: flex; flex: 1 1 auto; flex-direction: column; gap: clamp(5px, .85vh, 9px); padding: 2px 0 0; }
+.arena-hud {
+  position: absolute;
+  z-index: 7;
+  top: clamp(7px, 1.1vh, 13px);
+  right: clamp(7px, 1vw, 14px);
+  left: clamp(7px, 1vw, 14px);
   display: flex;
-  min-height: clamp(65px, 8.7vh, 88px);
+  flex-wrap: wrap;
   align-items: center;
-  padding: 10px clamp(14px, 2vw, 26px);
-  gap: 12px;
-  border: 1px solid rgba(133, 160, 217, .2);
-  border-radius: 17px;
-  background: linear-gradient(130deg, rgba(15, 27, 52, .91), rgba(10, 20, 41, .79));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 8px 21px rgba(0,0,0,.12);
+  gap: clamp(5px, .7vw, 9px);
+  pointer-events: none;
 }
-.lives-card { justify-content: flex-start; }
-.score-card { justify-content: center; flex-direction: column; gap: 0; border-color: rgba(85,244,243,.23); background: radial-gradient(ellipse at 50% 0%, rgba(85,244,243,.1), transparent 76%), linear-gradient(130deg, rgba(15,27,52,.93), rgba(10,20,41,.8)); }
-.timer-card { justify-content: flex-end; }
-.hud-label { color: #96a5c1; font-size: 10px; font-weight: 800; letter-spacing: .17em; white-space: nowrap; }
-.hearts { display: flex; align-items: center; gap: clamp(4px, .6vw, 9px); font-size: clamp(24px, 2.8vw, 34px); line-height: 1; filter: drop-shadow(0 0 9px rgba(255,80,116,.18)); white-space: nowrap; }
+.hud-chip {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  padding: 4px clamp(8px, 1vw, 13px);
+  gap: clamp(4px, .55vw, 8px);
+  border: 1px solid rgba(133, 160, 217, .22);
+  border-radius: 999px;
+  background: linear-gradient(130deg, rgba(15, 27, 52, .82), rgba(10, 20, 41, .68));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 7px 18px rgba(0,0,0,.24);
+  backdrop-filter: blur(6px);
+}
+.lives-card { padding-left: clamp(7px, .9vw, 11px); }
+.score-card { border-color: rgba(85,244,243,.26); background: radial-gradient(ellipse at 50% 0%, rgba(85,244,243,.12), transparent 76%), linear-gradient(130deg, rgba(15,27,52,.84), rgba(10,20,41,.7)); }
+.hud-label { color: #96a5c1; font-size: clamp(7px, .72vw, 9px); font-weight: 800; letter-spacing: .16em; white-space: nowrap; }
+.hearts { display: flex; align-items: center; gap: clamp(2px, .35vw, 6px); font-size: clamp(15px, 1.65vw, 23px); line-height: 1; filter: drop-shadow(0 0 8px rgba(255,80,116,.2)); white-space: nowrap; }
 .heart { display: inline-block; animation: heart-settle .22s ease-out; }
 .heart.is-lost { filter: grayscale(.12) drop-shadow(0 0 7px rgba(255,87,113,.16)); }
-.score-number, .timer-number { color: #f7f9ff; font-family: 'Space Grotesk', 'Trebuchet MS', sans-serif; font-size: clamp(28px, 3.5vw, 45px); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-.score-card .hud-label { margin-bottom: 4px; color: #84dfe2; }
-.score-number { color: var(--cyan); text-shadow: 0 0 20px rgba(85,244,243,.22); transition: transform .18s ease, text-shadow .18s ease; }
+.score-number, .timer-number { color: #f7f9ff; font-family: 'Space Grotesk', 'Trebuchet MS', sans-serif; font-size: clamp(15px, 1.75vw, 25px); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.score-card .hud-label { color: #84dfe2; }
+.score-number { color: var(--cyan); text-shadow: 0 0 18px rgba(85,244,243,.24); transition: transform .18s ease, text-shadow .18s ease; }
 .score-card.is-popping .score-number { transform: scale(1.14); text-shadow: 0 0 22px rgba(85,244,243,.62); }
-.timer-number { font-size: clamp(26px, 3.15vw, 40px); }
-.timer-card.is-urgent { border-color: rgba(255,110,142,.54); background: linear-gradient(130deg, rgba(72,28,56,.64), rgba(27,19,42,.92)); animation: timer-pulse .9s ease-in-out infinite alternate; }
+.timer-card.is-urgent { border-color: rgba(255,110,142,.6); background: linear-gradient(130deg, rgba(72,28,56,.78), rgba(27,19,42,.9)); animation: timer-pulse .9s ease-in-out infinite alternate; }
 .timer-card.is-urgent .timer-number { color: #ff91a7; }
 .target-banner {
   display: flex;
-  min-height: clamp(57px, 7.5vh, 74px);
+  min-height: 30px;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
-  gap: clamp(8px, 1.4vw, 19px);
-  border: 1px solid rgba(85, 244, 243, .18);
-  border-radius: 16px;
-  background: linear-gradient(90deg, rgba(16,29,58,.66), rgba(22,36,72,.82), rgba(16,29,58,.66));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+  margin-left: auto;
+  padding: 4px clamp(9px, 1.1vw, 15px);
+  gap: clamp(5px, .7vw, 11px);
+  border: 1px solid rgba(85, 244, 243, .2);
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(16,29,58,.75), rgba(22,36,72,.85), rgba(16,29,58,.75));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter: blur(6px);
 }
-.target-label { color: #92a3c4; font-size: 10px; font-weight: 800; letter-spacing: .17em; }
-.target-symbol { color: var(--target-color, var(--cyan)); font-size: clamp(27px, 3.5vh, 39px); line-height: .9; text-shadow: 0 0 14px var(--target-glow, rgba(85,244,243,.42)); }
-.target-word { color: var(--target-color, var(--cyan)); font-family: 'Space Grotesk', sans-serif; font-size: clamp(17px, 1.8vw, 23px); font-weight: 700; letter-spacing: .08em; }
-.target-instruction { padding-left: clamp(8px, 1.2vw, 15px); border-left: 1px solid rgba(163,186,227,.2); color: #d5deef; font-size: clamp(10px, 1vw, 13px); font-weight: 800; letter-spacing: .09em; }
+.target-label { color: #92a3c4; font-size: clamp(7px, .72vw, 9px); font-weight: 800; letter-spacing: .17em; }
+.target-symbol { color: var(--target-color, var(--cyan)); font-size: clamp(17px, 2vw, 26px); line-height: .9; text-shadow: 0 0 14px var(--target-glow, rgba(85,244,243,.42)); }
+.target-word { color: var(--target-color, var(--cyan)); font-family: 'Space Grotesk', sans-serif; font-size: clamp(12px, 1.15vw, 17px); font-weight: 700; letter-spacing: .08em; }
+.target-instruction { padding-left: clamp(6px, .8vw, 11px); border-left: 1px solid rgba(163,186,227,.2); color: #d5deef; font-size: clamp(7px, .75vw, 10px); font-weight: 800; letter-spacing: .09em; }
+.hud-toggle {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  place-items: center;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid rgba(133, 160, 217, .26);
+  border-radius: 50%;
+  color: #9fb0cd;
+  background: linear-gradient(130deg, rgba(15, 27, 52, .82), rgba(10, 20, 41, .68));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 7px 18px rgba(0,0,0,.24);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.hud-toggle svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.hud-toggle:hover { color: var(--cyan); border-color: rgba(85,244,243,.42); }
+.hud-toggle[aria-pressed="true"] { color: var(--cyan); border-color: rgba(85,244,243,.5); box-shadow: 0 0 16px rgba(85,244,243,.22); }
+/* Minimal HUD (default): only the shrunken lives chip stays on screen. */
+body:not(.show-game-hud) .score-card,
+body:not(.show-game-hud) .timer-card,
+body:not(.show-game-hud) .target-banner { display: none; }
 .arena {
   position: relative;
   flex: 1 1 auto;
-  min-height: 305px;
-  height: clamp(315px, calc(100svh - 405px), 660px);
+  min-height: 320px;
+  /* The arena now swallows every pixel the old HUD used to eat: it grows into all the
+     leftover height, so pictures fall from much higher and stay in the air longer. */
+  height: clamp(340px, calc(100svh - 140px), 1400px);
   overflow: hidden;
   isolation: isolate;
   border: 1px solid rgba(112, 148, 213, .3);
@@ -570,14 +609,21 @@ main { display: flex; flex: 1 0 auto; flex-direction: column; justify-content: c
 .particle-burst { position: absolute; width: 1px; height: 1px; }
 .particle-burst i { position: absolute; top: 0; left: 0; width: 8px; height: 8px; border-radius: 2px; background: var(--particle-color, var(--cyan)); box-shadow: 0 0 9px var(--particle-color, var(--cyan)); animation: particle-burst .72s cubic-bezier(.12,.7,.3,1) forwards; }
 .wrong-shake { animation: arena-shake .32s ease-in-out; }
-.game-controls { display: flex; min-height: 48px; align-items: center; justify-content: space-between; padding: 0 6px; }
+/* Wide-screen play: the shell steps out of the way as soon as a round starts, so the
+   arena gets the full width of the screen instead of the padded page width. */
+body.is-playing .app-shell { width: min(100%, 1920px); padding: clamp(6px, 1vh, 12px) clamp(8px, 1.2vw, 20px) clamp(3px, .6vh, 7px); }
+body.is-playing .app-footer { display: none; }
+body.is-playing .topbar { min-height: clamp(34px, 4.2vh, 44px); }
+body.is-playing .top-button { min-height: 36px; padding: 0 11px; gap: 7px; border-radius: 11px; font-size: 10px; }
+body.is-playing .brand-title { font-size: clamp(14px, 1.2vw, 18px); }
+.game-controls { display: flex; min-height: 34px; align-items: center; justify-content: space-between; padding: 0 2px; gap: 8px; }
 .direction-button {
   display: grid;
-  width: clamp(45px, 5.4vw, 62px);
-  height: clamp(42px, 5.3vh, 54px);
+  width: clamp(38px, 3.5vw, 50px);
+  height: clamp(30px, 3.5vh, 41px);
   place-items: center;
   border: 1px solid rgba(86, 242, 237, .4);
-  border-radius: 15px;
+  border-radius: 12px;
   color: var(--cyan);
   background: linear-gradient(145deg, rgba(23, 55, 72, .78), rgba(17, 28, 57, .95));
   box-shadow: 0 0 15px rgba(85,244,243,.08), inset 0 1px 0 rgba(255,255,255,.05);
@@ -586,7 +632,7 @@ main { display: flex; flex: 1 0 auto; flex-direction: column; justify-content: c
   user-select: none;
   transition: background .14s ease, transform .14s ease, box-shadow .14s ease;
 }
-.direction-button span { font-family: Arial, sans-serif; font-size: clamp(25px, 3vw, 33px); font-weight: 700; line-height: 1; }
+.direction-button span { font-family: Arial, sans-serif; font-size: clamp(20px, 2.2vw, 27px); font-weight: 700; line-height: 1; }
 .direction-button:hover, .direction-button:active { background: rgba(46, 100, 110, .8); box-shadow: 0 0 20px rgba(85,244,243,.25); }
 .direction-button:active { transform: scale(.95); }
 .control-hint { display: flex; align-items: center; gap: 7px; color: #9eacc8; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
@@ -738,18 +784,19 @@ main { display: flex; flex: 1 0 auto; flex-direction: column; justify-content: c
   .shape-word { font-size: clamp(16px, 3.2vw, 21px); }
   .selection-footer { align-items: flex-start; flex-direction: column; margin-top: 19px; gap: 11px; }
   .app-footer { font-size: 8px; letter-spacing: .11em; }
-  .game-screen { gap: 9px; padding-top: 6px; }
-  .hud-card { min-height: 62px; padding: 8px 10px; gap: 6px; border-radius: 14px; }
-  .hud-label { font-size: 8px; letter-spacing: .12em; }
-  .hearts { gap: 2px; font-size: clamp(20px, 4.1vw, 27px); }
-  .score-number { font-size: clamp(25px, 5.5vw, 34px); }
-  .timer-number { font-size: clamp(23px, 5vw, 31px); }
-  .target-banner { min-height: 52px; gap: 7px; padding: 7px 9px; }
-  .target-label { font-size: 8px; letter-spacing: .1em; }
-  .target-symbol { font-size: 27px; }
-  .target-word { font-size: clamp(15px, 3.4vw, 19px); letter-spacing: .035em; }
-  .target-instruction { padding-left: 7px; font-size: 8px; letter-spacing: .035em; }
-  .arena { height: clamp(300px, calc(100svh - 360px), 600px); min-height: 300px; border-radius: 18px; }
+  .game-screen { gap: 6px; padding-top: 2px; }
+  .arena-hud { gap: 5px; }
+  .hud-chip { min-height: 28px; padding: 3px 9px; gap: 5px; }
+  .hud-label { font-size: 7px; letter-spacing: .12em; }
+  .hearts { gap: 2px; font-size: clamp(17px, 4.2vw, 24px); }
+  .score-number { font-size: clamp(16px, 4vw, 24px); }
+  .timer-number { font-size: clamp(16px, 4vw, 24px); }
+  .target-banner { min-height: 28px; gap: 6px; padding: 3px 9px; }
+  .target-label { font-size: 7px; letter-spacing: .1em; }
+  .target-symbol { font-size: 19px; }
+  .target-word { font-size: clamp(12px, 3vw, 16px); letter-spacing: .035em; }
+  .target-instruction { display: none; }
+  .arena { height: clamp(300px, calc(100svh - 140px), 900px); min-height: 300px; border-radius: 18px; }
   .game-controls { min-height: 43px; padding: 0; }
   .direction-button { width: 45px; height: 41px; border-radius: 13px; }
   .direction-button span { font-size: 25px; }
@@ -793,17 +840,17 @@ main { display: flex; flex: 1 0 auto; flex-direction: column; justify-content: c
   .selection-footer { margin-top: 15px; gap: 9px; }
   .how-to-play { flex-wrap: wrap; gap: 6px; font-size: 11px; }
   .upload-nudge { align-items: flex-start; flex-wrap: wrap; font-size: 10px; }
-  .game-hud { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 6px; }
-  .hud-card { flex-direction: column; justify-content: center; min-height: 64px; gap: 4px; padding: 5px 3px; }
+  .arena-hud { gap: 4px; }
+  .hud-chip { justify-content: center; min-height: 26px; padding: 3px 7px; gap: 4px; }
   .lives-card { gap: 3px; }
-  .timer-card { flex-direction: column; align-items: center; }
-  .hud-label { font-size: 7px; letter-spacing: .09em; }
-  .hearts { font-size: clamp(18px, 6vw, 24px); }
-  .timer-number { font-size: clamp(21px, 6vw, 27px); }
-  .target-banner { justify-content: space-around; min-height: 49px; gap: 5px; }
+  .hud-label { font-size: 6px; letter-spacing: .09em; }
+  .hearts { font-size: clamp(15px, 5.4vw, 21px); }
+  .score-number, .timer-number { font-size: clamp(14px, 5vw, 20px); }
+  .target-banner { min-height: 26px; gap: 5px; }
   .target-label { display: none; }
-  .target-instruction { max-width: 95px; font-size: 7px; }
-  .arena { height: clamp(285px, calc(100svh - 365px), 500px); min-height: 285px; }
+  .hud-toggle { width: 26px; height: 26px; }
+  .hud-toggle svg { width: 15px; height: 15px; }
+  .arena { height: clamp(285px, calc(100svh - 132px), 800px); min-height: 285px; }
   .control-hint { gap: 4px; font-size: 7px; letter-spacing: .04em; }
   .keyboard-key { min-width: 20px; height: 21px; }
   .drag-separator { padding: 0; }

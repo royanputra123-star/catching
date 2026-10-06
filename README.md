@@ -23,6 +23,25 @@ The game also works when it is published inside a sub-folder — for example `ht
 
 The sound button mutes or unmutes music and effects. Short sound effects are synthesized by the browser, so they work even when no sound files are present.
 
+## Play area and the mini HUD
+
+The play area (the arena) takes almost the whole screen: while a round is running the page
+drops its footer and wide margins, so pictures fall from much higher and stay in the air
+longer on a projector or Smart TV.
+
+Everything that used to sit above the arena now floats **inside** it as small chips:
+
+| Chip | Default |
+| --- | --- |
+| Lives (small hearts) | always visible |
+| Score | hidden |
+| Time left | hidden |
+| **CATCH THE …** banner | hidden |
+
+Press the little round gauge button in the top-right corner of the arena — or press **H** —
+to show or hide the score, the timer and the target banner. The choice is remembered in
+that browser for the next round.
+
 ## Pictures
 
 Every shape has its own folder in `assets/shapes/<shape>/`, and **every file in that folder
@@ -87,7 +106,31 @@ Accepted teacher uploads can be PNG, JPG, GIF, SVG, and other browser-supported 
 
 ## Background music
 
-Place the optional `Rush E_1.mp3` file in the project root. The game will loop it during a round. If the file is missing or cannot play, the game continues normally with its built-in sound effects.
+The game looks for a music file in these places, in order, and loops the first one it
+finds during a round. You only need **one** of them:
+
+| Where to put it | File name |
+| --- | --- |
+| project root (next to `index.html`) | `Rush E_1.mp3` |
+| `assets/audio/` | `Rush E_1.mp3` |
+| `assets/audio/` | `rush-e.mp3` |
+| `assets/audio/` | `background-music.mp3` |
+| `assets/audio/` | `background-music.ogg` |
+| `assets/music/` | `Rush E_1.mp3` |
+
+No code change is needed — drop the file in and reload the page. `assets/audio/` is
+committed with a `README.md` inside it so the folder always exists in Git.
+
+### Uploading it on GitHub
+
+1. Open the repository on github.com.
+2. **Add file → Upload files** (or open the `assets/audio/` folder first and press
+   **Add file** there).
+3. Drag `Rush E_1.mp3` into the box, press **Commit changes**.
+4. Wait for the Pages deploy to finish, then reload the game.
+
+If the file is missing or cannot play, the game continues normally with its built-in
+sound effects, and the browser console lists the paths it looked for.
 
 ## Round pacing
 

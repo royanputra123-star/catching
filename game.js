@@ -124,11 +124,36 @@ const readyOverlay = document.getElementById('ready-overlay');
 const speedNotice = document.getElementById('speed-notice');
 const timerCard = document.querySelector('.timer-card');
 const scoreCard = document.getElementById('score-card');
-const music = new Audio('./Rush%20E_1.mp3');
+const hudToggle = document.getElementById('hud-toggle');
+
+// Background music is optional. The game tries these files in order and plays the first
+// one it finds, so a teacher can drop "Rush E" in the project root OR in assets/audio/.
+//   • Rush E_1.mp3                  ← next to index.html (project root)
+//   • assets/audio/Rush E_1.mp3     ← same file name, tidied into a folder
+//   • assets/audio/rush-e.mp3       ← renamed without spaces
+//   • assets/audio/background-music.mp3 / .ogg
+// Any of them works; if none exist the game simply plays with sound effects only.
+const MUSIC_SOURCES = [
+  'Rush%20E_1.mp3',
+  'assets/audio/Rush%20E_1.mp3',
+  'assets/audio/rush-e.mp3',
+  'assets/audio/background-music.mp3',
+  'assets/audio/background-music.ogg',
+  'assets/music/Rush%20E_1.mp3',
+];
+
+const music = new Audio();
+let musicSourceIndex = 0;
+let musicCurrentSource = '';
 
 music.loop = true;
 music.preload = 'none';
 music.volume = 0.2;
+
+function loadMusicSource() {
+  musicCurrentSource = MUSIC_SOURCES[musicSourceIndex];
+  music.setAttribute('src', musicCurrentSource);
+}
 
 let gameState = 'idle'; // idle, ready, playing, finished
 let selectedShape = null;
@@ -544,7 +569,41 @@ function setScreen(screenName) {
   gameScreen.hidden = screenName !== 'game';
   resultsScreen.hidden = screenName !== 'results';
   libraryOpenButton.disabled = gameState === 'playing' || gameState === 'ready';
+  // During a round the page chrome (footer padding, wide margins) steps aside so the
+  // arena can stretch across the whole screen.
+  document.body.classList.toggle('is-playing', screenName === 'game');
 }
+
+// Minimal HUD: score, time and the "CATCH THE …" banner are hidden by default so the
+// play area stays huge. The small gauge button (or the H key) brings them back, and the
+// choice is remembered for the next round.
+const HUD_STORAGE_KEY = 'shape-catcher:show-hud';
+
+function isHudExpanded() {
+  return document.body.classList.contains('show-game-hud');
+}
+
+function setHudExpanded(expanded) {
+  document.body.classList.toggle('show-game-hud', expanded);
+  hudToggle.setAttribute('aria-pressed', String(expanded));
+  hudToggle.setAttribute('aria-label', expanded ? 'Hide score and time' : 'Show score and time');
+  try {
+    window.localStorage.setItem(HUD_STORAGE_KEY, expanded ? '1' : '0');
+  } catch {
+    // Private browsing modes can refuse storage; the toggle still works this session.
+  }
+}
+
+hudToggle.addEventListener('click', () => setHudExpanded(!isHudExpanded()));
+// The button floats over the arena, so a tap on it must not also drag the catcher.
+hudToggle.addEventListener('pointerdown', (event) => event.stopPropagation());
+window.addEventListener('keydown', (event) => {
+  if (event.key !== 'h' && event.key !== 'H') return;
+  if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+  const tagName = event.target && event.target.tagName ? event.target.tagName : '';
+  if (tagName === 'INPUT' || tagName === 'TEXTAREA') return;
+  setHudExpanded(!isHudExpanded());
+});
 
 function updateSoundButton() {
   soundToggle.setAttribute('aria-pressed', String(soundEnabled));
@@ -610,17 +669,40 @@ function playVictorySound() {
   });
 }
 
+// Called when a music file turns out to be missing or unplayable. It moves on to the
+// next candidate in MUSIC_SOURCES so one wrong file name never silences the round.
+function skipMusicSource() {
+  if (musicUnavailable) return;
+  // Both the error event and a rejected play() promise can report the same missing
+  // file; comparing the source keeps the game from skipping two candidates at once.
+  if ((music.getAttribute('src') || '') !== musicCurrentSource) return;
+  musicSourceIndex += 1;
+  if (musicSourceIndex >= MUSIC_SOURCES.length) {
+    musicUnavailable = true;
+    console.info('No background music found. Put "Rush E_1.mp3" in the project root or in assets/audio/ to add a soundtrack.');
+    return;
+  }
+  loadMusicSource();
+}
+
 function startBackgroundMusic() {
   if (!soundEnabled || musicUnavailable || gameState !== 'playing') return;
+  if (!music.getAttribute('src')) {
+    musicSourceIndex = 0;
+    loadMusicSource();
+  }
   try {
     const playback = music.play();
     if (playback && typeof playback.catch === 'function') {
       playback.catch(() => {
-        // Rush E_1.mp3 is optional. Catch sounds are generated locally and still work.
+        // Missing music file: try the next name/folder, then give up quietly.
+        skipMusicSource();
+        if (!musicUnavailable && gameState === 'playing') startBackgroundMusic();
       });
     }
   } catch {
     // Unsupported or missing background audio never blocks the game.
+    skipMusicSource();
   }
 }
 
@@ -633,7 +715,7 @@ function stopBackgroundMusic() {
   }
 }
 
-music.addEventListener('error', () => { musicUnavailable = true; });
+music.addEventListener('error', skipMusicSource);
 
 // The ramp is spread over the whole two-minute round. The old curve reached 6x after
 // 50 seconds, which made pictures cross the arena faster than a child can react and
@@ -816,8 +898,10 @@ function spawnFallingObject() {
   const asset = takeAssetFor(shape);
   if (!asset) return;
 
-  const maxSize = Math.min(118, Math.max(78, arenaWidth * .095));
-  const minSize = Math.min(76, maxSize - 4);
+  // Pictures are a touch bigger than before so they stay readable when they start
+  // falling from the top of a much taller arena.
+  const maxSize = Math.min(132, Math.max(82, arenaWidth * .088));
+  const minSize = Math.min(86, maxSize - 4);
   const size = minSize + Math.random() * (maxSize - minSize);
   const safeMargin = size / 2 + 13;
   const x = safeMargin + Math.random() * Math.max(1, arenaWidth - safeMargin * 2);
@@ -1201,6 +1285,11 @@ window.addEventListener('resize', () => {
   }
 });
 
+try {
+  setHudExpanded(window.localStorage.getItem(HUD_STORAGE_KEY) === '1');
+} catch {
+  setHudExpanded(false);
+}
 updateSoundButton();
 updateAssetCounts();
 attachSelectionCardFallbacks();
