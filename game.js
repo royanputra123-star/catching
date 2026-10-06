@@ -56,8 +56,8 @@ const shapeAssets = {
   ],
   square: [
     // Photo objects
-    'assets/shapes/square/chess-board.jpg',
-    'assets/shapes/square/square-wall-clock.jpg',
+    'assets/shapes/square/chess-board.png',
+    'assets/shapes/square/square-wall-clock.png',
     'assets/shapes/square/grilled-sandwich.png',
     'assets/shapes/square/plaid-handkerchief.png',
     'assets/shapes/square/attention-square-sign.png',
@@ -74,7 +74,7 @@ const shapeAssets = {
     'assets/shapes/rectangle/red-story-book.png',
     'assets/shapes/rectangle/wooden-door.png',
     'assets/shapes/rectangle/flat-television.png',
-    'assets/shapes/rectangle/playing-card.jpg',
+    'assets/shapes/rectangle/playing-card.png',
     'assets/shapes/rectangle/denmark-flag.png',
     'assets/shapes/rectangle/philippine-flag.png',
     'assets/shapes/rectangle/lunch-food-tray.png',
