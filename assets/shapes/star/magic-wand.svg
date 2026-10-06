@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <defs><linearGradient id="star" x1="83" y1="17" x2="111" y2="111" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF49B"/><stop offset="1" stop-color="#FFB838"/></linearGradient><linearGradient id="wand" x1="72" y1="93" x2="131" y2="148" gradientUnits="userSpaceOnUse"><stop stop-color="#FF86D6"/><stop offset="1" stop-color="#A367EF"/></linearGradient></defs>
+  <path d="m90 18 17 36 40 6-29 28 7 40-35-19-36 19 7-40-29-28 40-6 18-36Z" fill="url(#star)" stroke="#FFF6BD" stroke-width="5" stroke-linejoin="round"/>
+  <path d="m53 118 15 15-34 34a10.6 10.6 0 0 1-15-15l34-34Z" fill="url(#wand)" stroke="#F3D8FF" stroke-width="5" stroke-linejoin="round"/>
+  <path d="m32 127 20 20" stroke="#FFD6F4" stroke-width="4" stroke-linecap="round"/>
+  <path d="m151 37 9-8m-1 27 12 1M23 48l-8-9m12 31-11 4" stroke="#69F3FF" stroke-width="5" stroke-linecap="round"/>
+</svg>
