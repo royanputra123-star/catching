@@ -89,33 +89,41 @@
         </section>
 
         <section class="screen game-screen" id="game-screen" hidden aria-label="Shape Catcher game">
-          <div class="game-hud">
-            <div class="hud-card lives-card">
-              <span class="hud-label">LIVES</span>
-              <div class="hearts" id="hearts" aria-label="3 lives remaining">
-                <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
-              </div>
-            </div>
-            <div class="hud-card score-card" id="score-card">
-              <span class="hud-label">SCORE</span>
-              <strong class="score-number" id="score-number">0</strong>
-            </div>
-            <div class="hud-card timer-card">
-              <span class="hud-label">TIME LEFT</span>
-              <strong class="timer-number" id="timer-number">02:00</strong>
-            </div>
-          </div>
-
-          <div class="target-banner" id="target-banner">
-            <span class="target-label">CATCH THE</span>
-            <span class="target-symbol" id="target-symbol" aria-hidden="true">▲</span>
-            <strong class="target-word" id="target-word">TRIANGLE</strong>
-            <span class="target-instruction">CATCH ONLY THIS SHAPE!</span>
-          </div>
-
           <div class="arena" id="arena" aria-label="Play area. Use the left and right arrow keys to move the catcher.">
             <div class="arena-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
             <div class="arena-horizon" aria-hidden="true"></div>
+
+            <!-- The HUD floats inside the arena so the whole screen is play area.
+                 Lives stay visible; score, time and the "CATCH THE …" banner are
+                 hidden until the small gauge button (or the H key) is pressed. -->
+            <div class="arena-hud" id="arena-hud">
+              <div class="hud-chip lives-card">
+                <span class="hud-label">LIVES</span>
+                <div class="hearts" id="hearts" aria-label="3 lives remaining">
+                  <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+                </div>
+              </div>
+              <div class="hud-chip score-card" id="score-card">
+                <span class="hud-label">SCORE</span>
+                <strong class="score-number" id="score-number">0</strong>
+              </div>
+              <div class="hud-chip timer-card">
+                <span class="hud-label">TIME</span>
+                <strong class="timer-number" id="timer-number">02:00</strong>
+              </div>
+
+              <div class="target-banner" id="target-banner">
+                <span class="target-label">CATCH THE</span>
+                <span class="target-symbol" id="target-symbol" aria-hidden="true">▲</span>
+                <strong class="target-word" id="target-word">TRIANGLE</strong>
+                <span class="target-instruction">CATCH ONLY THIS SHAPE!</span>
+              </div>
+
+              <button class="hud-toggle" id="hud-toggle" type="button" aria-pressed="false" aria-label="Show score and time" title="Show / hide score and time (H)">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14h3.2l2.3-6.4 3.3 12.8 2.4-6.4H21" /></svg>
+              </button>
+            </div>
+
             <div class="falling-layer" id="falling-layer"></div>
             <div class="effect-layer" id="effect-layer" aria-hidden="true"></div>
 
