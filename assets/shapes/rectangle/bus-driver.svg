@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <defs><linearGradient id="bus" x1="26" y1="58" x2="154" y2="132" gradientUnits="userSpaceOnUse"><stop stop-color="#FFD75E"/><stop offset="1" stop-color="#F09B2E"/></linearGradient></defs>
+  <path d="M22 76c0-9 7-16 16-16h104c9 0 16 7 16 16v40H22V76Z" fill="url(#bus)" stroke="#FFF1B8" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M36 74h34v24H36zM82 74h30v24H82zM120 74h26v24h-26z" fill="#0F2348" opacity=".62"/>
+  <path d="M36 74h34v24H36zM82 74h30v24H82zM120 74h26v24h-26z" stroke="#BEE9FF" stroke-width="3" opacity=".7"/>
+  <path d="M22 100h136v16H22z" fill="#E0F3FF" opacity=".45"/>
+  <circle cx="56" cy="128" r="13" fill="#20304F" stroke="#D6F0FF" stroke-width="5"/>
+  <circle cx="124" cy="128" r="13" fill="#20304F" stroke="#D6F0FF" stroke-width="5"/>
+  <circle cx="90" cy="46" r="8" fill="#FF86D6" stroke="#FFD6F1" stroke-width="3"/>
+  <path d="M28 44l8 6m116-8-8 7" stroke="#69F3FF" stroke-width="4" stroke-linecap="round" opacity=".65"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <defs><linearGradient id="windshield" x1="46" y1="52" x2="134" y2="139" gradientUnits="userSpaceOnUse"><stop stop-color="#55E8F1"/><stop offset="1" stop-color="#3D62E9"/></linearGradient></defs>
+  <rect x="41" y="58" width="98" height="78" rx="9" fill="url(#windshield)" stroke="#D6FFFF" stroke-width="5"/>
+  <rect x="55" y="72" width="70" height="50" rx="9" fill="#0F2348" opacity=".55"/>
+  <path d="M62 84h38M62 97h48M62 110h28" stroke="#BFEFFF" stroke-width="4" stroke-linecap="round" opacity=".9"/>
+  <path d="M83 58h14v78H83z" fill="#A9C8FF" opacity=".22"/>
+  <rect x="47" y="42" width="86" height="13" rx="6" fill="#A57CFF" stroke="#E4D4FF" stroke-width="4"/>
+  <path d="M33 30l7 6m107-6-7 6" stroke="#FF86D6" stroke-width="4" stroke-linecap="round" opacity=".75"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <defs><linearGradient id="rocket" x1="76" y1="44" x2="112" y2="118" gradientUnits="userSpaceOnUse"><stop stop-color="#DFF6FF"/><stop offset="1" stop-color="#8FB4E8"/></linearGradient></defs>
+  <path d="M92 30c14 16 21 36 21 58 0 14-3 25-8 34H79c-5-9-8-20-8-34 0-22 7-42 21-58Z" fill="url(#rocket)" stroke="#EAF9FF" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="92" cy="70" r="10" fill="#4ED8F0" stroke="#BFF4FF" stroke-width="4"/>
+  <path d="M71 104 54 130l18-7m41 7 17 26-18-7" fill="#FF86D6" stroke="#FFD2F1" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M92 124c8 6 12 14 11 24-9-1-15-6-17-14 2-4 4-7 6-10Z" fill="#FFC44D" stroke="#FFE7A8" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M40 126l3 6 6 3-6 3-3 6-3-6-6-3 6-3 3-6Z" fill="#69F3FF"/>
+  <path d="M140 44l3 6 6 3-6 3-3 6-3-6-6-3 6-3 3-6Z" fill="#FFD965"/>
+  <path d="M48 48l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z" fill="#FF86D6"/>
+</svg>

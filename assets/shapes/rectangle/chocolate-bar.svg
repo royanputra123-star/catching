@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <defs>
+    <linearGradient id="cocoa" x1="30" y1="62" x2="150" y2="126" gradientUnits="userSpaceOnUse"><stop stop-color="#8A5A3C"/><stop offset="1" stop-color="#54301F"/></linearGradient>
+    <linearGradient id="band" x1="28" y1="86" x2="152" y2="122" gradientUnits="userSpaceOnUse"><stop stop-color="#FF9BD8"/><stop offset="1" stop-color="#A65DE8"/></linearGradient>
+  </defs>
+  <path d="M26 60h128v68H26z" fill="url(#cocoa)" stroke="#C79A78" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M62 60v28m56-28v28M26 88h11M143 88h11" stroke="#D9B292" stroke-width="4" stroke-linecap="round" opacity=".55"/>
+  <path d="M26 88h128v40H26z" fill="url(#band)" stroke="#FFD9F1" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M56 88v40M124 88v40" stroke="#FFE7F8" stroke-width="4" opacity=".5"/>
+  <path d="M78 100h26M78 114h18" stroke="#FFF3FC" stroke-width="4" stroke-linecap="round" opacity=".9"/>
+  <path d="M143 88c9-6 15-4 17 4-7 4-13 3-17-4Zm0 40c9 6 15 4 17-4-7-4-13-3-17 4Z" fill="#FF86D6" stroke="#FFD6F1" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M44 44l7 7m85-7-7 7" stroke="#69F3FF" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+</svg>
