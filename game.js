@@ -7,6 +7,12 @@
 
 const shapeOrder = ['triangle', 'circle', 'square', 'rectangle', 'star'];
 
+// Resolve bundled pictures beside this script, not against the current page URL. The
+// page may be mounted below a sub-path or include a <base> element that changes how
+// ordinary relative URLs are resolved.
+const gameScriptUrl = document.currentScript?.src || document.baseURI;
+const appBaseUrl = new URL('.', gameScriptUrl);
+
 const shapeInfo = {
   triangle: { label: 'TRIANGLE', symbol: '▲', color: '#5df3ed', glow: 'rgba(65, 239, 225, .42)' },
   circle: { label: 'CIRCLE', symbol: '●', color: '#ff78c4', glow: 'rgba(255, 93, 178, .42)' },
@@ -16,11 +22,8 @@ const shapeInfo = {
 };
 
 // Starter image assets. Add more paths to any list to give that shape more variety.
-// IMPORTANT: keep these paths RELATIVE (no leading "/"). A leading slash points at the
-// root of the host, so on a file:// page it resolves to file:///assets/... and on a
-// project page such as https://user.github.io/catching/ it resolves to the wrong folder.
-// Relative paths work everywhere: opened from disk, served from a folder, or hosted in a
-// sub-directory (GitHub Pages, Netlify sub-paths, classroom intranet folders...).
+// Keep these paths relative to this app (normally without a leading slash). The loader
+// resolves them beside game.js so they work from disk, a web server, or a hosted subpath.
 const shapeAssets = {
   triangle: [
     'assets/shapes/triangle/pizza-slice.svg',
@@ -140,13 +143,20 @@ function databaseRequest(storeName, mode, action) {
   });
 }
 
-// Every picture gets a short list of places to load from, so a leading-slash path or a
-// moved file still resolves instead of leaving an empty tile on screen.
+// Resolve bundled pictures beside game.js first, then try the page URL for custom paths.
+// This keeps assets working when the app is mounted under a sub-path or uses <base>.
 function assetSourceCandidates(src) {
   if (typeof src !== 'string' || !src) return [];
-  const candidates = [src];
-  const relative = src.replace(/^\/+/, '');
-  if (relative && relative !== src) candidates.push(relative);
+  const appRelative = src.startsWith('//') ? src : src.replace(/^\/+/, '');
+  const candidates = [];
+  for (const base of [appBaseUrl, document.baseURI]) {
+    try {
+      const candidate = new URL(appRelative, base).href;
+      if (!candidates.includes(candidate)) candidates.push(candidate);
+    } catch {
+      // Ignore malformed optional paths and let the normal missing-image fallback run.
+    }
+  }
   return candidates;
 }
 
@@ -923,24 +933,23 @@ function aimCatcherFromPointer(event) {
   desiredX = Math.max(minX, Math.min(maxX, event.clientX - bounds.left));
 }
 
-// If a picture in the shape cards cannot be loaded, swap it for the shape symbol
-// so the selection screen still teaches the shape.
+// Load selection-card art through the same resolver as in-game pictures. The source is
+// stored as data, so the error handler is attached before the browser requests the file.
 function attachSelectionCardFallbacks() {
   for (const card of document.querySelectorAll('[data-select-shape]')) {
     const shape = card.dataset.selectShape;
     const example = card.querySelector('.shape-card-example');
     const image = example ? example.querySelector('img') : null;
     if (!image) continue;
-    image.addEventListener('error', () => {
-      image.hidden = true;
+
+    const src = image.dataset.pictureSrc || image.getAttribute('src') || '';
+    if (!src) continue;
+    const asset = { name: friendlyFileName(src), src, shape };
+    attachPicture(image, assetSourceCandidates(src), () => {
       if (!example.querySelector('.missing-picture')) {
         addFallbackGlyph(example, shape, 'card-missing-picture');
       }
-      warnMissingPicture({
-        name: friendlyFileName(image.getAttribute('src') || 'picture'),
-        src: image.getAttribute('src'),
-        shape,
-      });
+      warnMissingPicture(asset);
     });
   }
 }

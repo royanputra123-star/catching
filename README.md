@@ -47,14 +47,14 @@ const shapeAssets = {
 };
 ```
 
-### Picture paths must stay relative
+### Picture paths and formats
 
-Write `assets/shapes/...`, never `/assets/shapes/...`. A leading slash points at the root of whatever hosts the game:
+The built-in starter pictures are valid SVG files; the `.svg` extension is not required. The game can display any image format supported by the browser, including PNG, JPG, GIF, WebP, and SVG. Write paths such as `assets/shapes/...` (without a leading slash). Bundled paths are resolved from `game.js`, so they keep working when the game is hosted in a sub-folder or the page sets a different `<base>` URL:
 
 | Path | Opened from a folder | Published in `/catching/` |
 | --- | --- | --- |
 | `assets/shapes/star/magic-wand.svg` | ✅ works | ✅ works |
-| `/assets/shapes/star/magic-wand.svg` | ❌ looks for `file:///assets/...` | ❌ looks for `/assets/...` on the host root |
+| `/assets/shapes/star/magic-wand.svg` | ✅ normalized beside `game.js` | ✅ normalized beside `game.js` |
 
 If a file is missing or misspelled the game keeps playing: that picture is replaced by the shape symbol, and the browser console explains which path failed.
 
