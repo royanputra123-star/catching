@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070d1c" />
+    <meta name="description" content="A bright, big-screen shape vocabulary game for the classroom." />
+    <title>Shape Catcher — Classroom Arcade</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="game.js" defer></script>
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+    <div class="ambient-starfield" aria-hidden="true"></div>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#home" aria-label="Shape Catcher home">
+          <span class="brand-mark" aria-hidden="true">
+            <span class="brand-shape brand-triangle"></span>
+            <span class="brand-shape brand-circle"></span>
+            <span class="brand-shape brand-square"></span>
+          </span>
+          <span class="brand-copy">
+            <span class="brand-eyebrow">CLASSROOM ARCADE</span>
+            <span class="brand-title">SHAPE <b>CATCHER</b></span>
+          </span>
+        </a>
+
+        <div class="top-actions">
+          <button class="top-button library-open" id="library-open" type="button" aria-haspopup="dialog">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+            <span>OBJECT LIBRARY</span>
+            <span class="asset-total" id="total-assets-count">5</span>
+          </button>
+          <button class="top-button sound-toggle" id="sound-toggle" type="button" aria-pressed="true" aria-label="Mute game sounds">
+            <svg class="sound-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path class="sound-wave" d="M16 9a5 5 0 0 1 0 6m2.5-8.5a8.5 8.5 0 0 1 0 11"/></svg>
+            <span id="sound-label">SOUND ON</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="main-content">
+        <section class="screen selection-screen" id="selection-screen" aria-labelledby="selection-title">
+          <div class="selection-heading">
+            <div class="round-kicker"><span class="status-dot"></span> READY, SHAPE SPOTTERS?</div>
+            <h1 id="selection-title">CATCH THE <span>SHAPE!</span></h1>
+            <p>Pick a shape, then catch its pictures. Let the others float by!</p>
+          </div>
+
+          <div class="shape-grid" role="group" aria-label="Choose a shape to catch">
+            <button class="shape-card shape-triangle" type="button" data-select-shape="triangle" aria-label="Choose Triangle">
+              <span class="shape-card-top"><span class="shape-card-number">01</span><span class="shape-card-count" id="count-triangle">1 PICTURE</span></span>
+              <span class="shape-symbol" aria-hidden="true">▲</span>
+              <span class="shape-word">TRIANGLE</span>
+              <span class="shape-card-example"><img src="assets/shapes/triangle/pizza-slice.svg" alt="" /> <span>FIND THIS SHAPE</span></span>
+            </button>
+            <button class="shape-card shape-circle" type="button" data-select-shape="circle" aria-label="Choose Circle">
+              <span class="shape-card-top"><span class="shape-card-number">02</span><span class="shape-card-count" id="count-circle">1 PICTURE</span></span>
+              <span class="shape-symbol" aria-hidden="true">●</span>
+              <span class="shape-word">CIRCLE</span>
+              <span class="shape-card-example"><img src="assets/shapes/circle/orange.svg" alt="" /> <span>FIND THIS SHAPE</span></span>
+            </button>
+            <button class="shape-card shape-square" type="button" data-select-shape="square" aria-label="Choose Square">
+              <span class="shape-card-top"><span class="shape-card-number">03</span><span class="shape-card-count" id="count-square">1 PICTURE</span></span>
+              <span class="shape-symbol" aria-hidden="true">■</span>
+              <span class="shape-word">SQUARE</span>
+              <span class="shape-card-example"><img src="assets/shapes/square/gift-box.svg" alt="" /> <span>FIND THIS SHAPE</span></span>
+            </button>
+            <button class="shape-card shape-rectangle" type="button" data-select-shape="rectangle" aria-label="Choose Rectangle">
+              <span class="shape-card-top"><span class="shape-card-number">04</span><span class="shape-card-count" id="count-rectangle">1 PICTURE</span></span>
+              <span class="shape-symbol rectangle-symbol" aria-hidden="true">▰</span>
+              <span class="shape-word">RECTANGLE</span>
+              <span class="shape-card-example"><img src="assets/shapes/rectangle/story-book.svg" alt="" /> <span>FIND THIS SHAPE</span></span>
+            </button>
+            <button class="shape-card shape-star" type="button" data-select-shape="star" aria-label="Choose Star">
+              <span class="shape-card-top"><span class="shape-card-number">05</span><span class="shape-card-count" id="count-star">1 PICTURE</span></span>
+              <span class="shape-symbol" aria-hidden="true">★</span>
+              <span class="shape-word">STAR</span>
+              <span class="shape-card-example"><img src="assets/shapes/star/magic-wand.svg" alt="" /> <span>FIND THIS SHAPE</span></span>
+            </button>
+          </div>
+
+          <div class="selection-footer">
+            <div class="how-to-play"><span class="how-to-icon" aria-hidden="true">↔</span><span><b>MOVE</b> with ← → keys</span><span class="how-to-divider"></span><span>or drag the catcher</span></div>
+            <div class="upload-nudge"><span class="upload-sparkle" aria-hidden="true">✦</span> Teachers: add your own pictures in <b>OBJECT LIBRARY</b></div>
+          </div>
+        </section>
+
+        <section class="screen game-screen" id="game-screen" hidden aria-label="Shape Catcher game">
+          <div class="game-hud">
+            <div class="hud-card lives-card">
+              <span class="hud-label">LIVES</span>
+              <div class="hearts" id="hearts" aria-label="3 lives remaining">
+                <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+              </div>
+            </div>
+            <div class="hud-card score-card" id="score-card">
+              <span class="hud-label">SCORE</span>
+              <strong class="score-number" id="score-number">0</strong>
+            </div>
+            <div class="hud-card timer-card">
+              <span class="hud-label">TIME LEFT</span>
+              <strong class="timer-number" id="timer-number">02:00</strong>
+            </div>
+          </div>
+
+          <div class="target-banner" id="target-banner">
+            <span class="target-label">CATCH THE</span>
+            <span class="target-symbol" id="target-symbol" aria-hidden="true">▲</span>
+            <strong class="target-word" id="target-word">TRIANGLE</strong>
+            <span class="target-instruction">CATCH ONLY THIS SHAPE!</span>
+          </div>
+
+          <div class="arena" id="arena" aria-label="Play area. Use the left and right arrow keys to move the catcher.">
+            <div class="arena-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="arena-horizon" aria-hidden="true"></div>
+            <div class="falling-layer" id="falling-layer"></div>
+            <div class="effect-layer" id="effect-layer" aria-hidden="true"></div>
+
+            <div class="catcher" id="catcher" aria-label="Catcher">
+              <div class="catcher-glow" aria-hidden="true"></div>
+              <svg class="basket-svg" viewBox="0 0 180 106" aria-hidden="true">
+                <defs>
+                  <linearGradient id="basketFill" x1="24" y1="34" x2="158" y2="92" gradientUnits="userSpaceOnUse"><stop stop-color="#40F3EE"/><stop offset="1" stop-color="#657BFF"/></linearGradient>
+                  <linearGradient id="basketRim" x1="14" y1="28" x2="166" y2="48" gradientUnits="userSpaceOnUse"><stop stop-color="#BCFFF9"/><stop offset="1" stop-color="#AA91FF"/></linearGradient>
+                </defs>
+                <path d="M26 41h128l-13 48a13 13 0 0 1-12 9H51a13 13 0 0 1-12-9L26 41Z" fill="url(#basketFill)" fill-opacity=".9" stroke="#A7FFF8" stroke-width="5" stroke-linejoin="round"/>
+                <path d="m52 50 8 37m23-37v39m23-39-5 37m28-37-10 34" stroke="#E3FFFF" stroke-width="4" stroke-linecap="round" opacity=".62"/>
+                <path d="M15 35c0-6 5-11 11-11h128c6 0 11 5 11 11v7H15v-7Z" fill="url(#basketRim)" stroke="#D6FFFC" stroke-width="5"/>
+                <path d="M67 16h46" stroke="#B5A1FF" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+              </svg>
+              <span class="catcher-caption">CATCHER</span>
+            </div>
+
+            <div class="ready-overlay" id="ready-overlay" aria-live="assertive">
+              <div class="ready-card">
+                <span class="ready-eyebrow">GET READY!</span>
+                <span class="ready-shape-symbol" id="ready-symbol" aria-hidden="true">▲</span>
+                <strong class="ready-title" id="ready-title">TRIANGLE</strong>
+                <span class="ready-hint">Catch the matching pictures!</span>
+                <div class="ready-countdown" aria-hidden="true"><i></i><i></i><i></i></div>
+              </div>
+            </div>
+
+            <div class="speed-notice" id="speed-notice" aria-live="polite" aria-atomic="true">
+              <span class="speed-bolt" aria-hidden="true">⚡</span>
+              <span><b>SPEED UP!</b><small id="speed-label">SPEED 1.5×</small></span>
+            </div>
+            <div class="catch-message" id="catch-message" aria-live="polite"></div>
+          </div>
+
+          <div class="game-controls">
+            <button class="direction-button" id="left-button" type="button" aria-label="Move catcher left"><span>←</span></button>
+            <div class="control-hint"><span class="keyboard-key">←</span><span class="keyboard-key">→</span><span>MOVE YOUR CATCHER</span><span class="drag-separator">·</span><span>OR DRAG</span></div>
+            <button class="direction-button" id="right-button" type="button" aria-label="Move catcher right"><span>→</span></button>
+          </div>
+        </section>
+
+        <section class="screen results-screen" id="results-screen" hidden aria-labelledby="result-title" aria-live="polite">
+          <div class="result-confetti" id="result-confetti" aria-hidden="true"></div>
+          <div class="result-card" id="result-card">
+            <div class="result-emblem" id="result-emblem" aria-hidden="true">✦</div>
+            <span class="result-kicker" id="result-kicker">ROUND COMPLETE</span>
+            <h2 id="result-title">GAME OVER!</h2>
+            <p class="result-subtitle" id="result-subtitle">You caught 8 shapes!</p>
+            <div class="final-score-wrap"><span>FINAL SCORE</span><strong id="final-score">120</strong></div>
+            <div class="result-stats">
+              <div><strong id="caught-total">8</strong><span>SHAPES CAUGHT</span></div>
+              <div><strong id="accuracy-total">92%</strong><span>ACCURACY</span></div>
+              <div><strong id="best-speed">1×</strong><span>TOP SPEED</span></div>
+            </div>
+            <div class="result-actions">
+              <button class="result-button primary-result-button" id="play-again" type="button"><span aria-hidden="true">↻</span> PLAY AGAIN</button>
+              <button class="result-button secondary-result-button" id="change-shape" type="button">CHANGE SHAPE</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <span>LEARN A SHAPE. CATCH A SMILE. <span class="footer-heart">♥</span></span>
+        <span class="footer-credit">MADE FOR LITTLE LEARNERS <span aria-hidden="true">✦</span></span>
+      </footer>
+    </div>
+
+    <dialog class="library-dialog" id="library-dialog" aria-labelledby="library-title">
+      <div class="library-dialog-inner">
+        <div class="library-header">
+          <div>
+            <span class="library-eyebrow">MAKE IT YOURS</span>
+            <h2 id="library-title">OBJECT LIBRARY</h2>
+            <p>Upload classroom pictures. Each picture will fall under its shape.</p>
+          </div>
+          <button class="dialog-close" id="library-close" type="button" aria-label="Close object library">×</button>
+        </div>
+        <div class="library-note" id="library-note"><span class="note-sparkle" aria-hidden="true">✦</span><span id="library-note-text">Choose the shape first, then add one or more picture files. Your uploads stay in this browser.</span></div>
+        <div class="library-list" id="library-list"></div>
+        <div class="library-footer"><span class="library-save-icon" aria-hidden="true">✓</span> Ready to play? Close this window and choose a shape!</div>
+      </div>
+    </dialog>
+  </body>
+</html>
