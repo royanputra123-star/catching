@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Periksa urutan gambar — Shape Catcher</title>
+<style>
+  :root {
+    --bg: #0d1024;
+    --panel: #171b38;
+    --panel-2: #1f2447;
+    --line: rgba(255, 255, 255, .12);
+    --text: #f2f5ff;
+    --muted: #a8b0d6;
+    --accent: #6be3ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 70px;
+    background: radial-gradient(1200px 700px at 50% -10%, #23295a 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: .3px; }
+  p.lead { color: var(--muted); margin: 0 0 22px; line-height: 1.55; max-width: 78ch; }
+  .bar {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 22px; position: sticky; top: 12px; z-index: 5;
+  }
+  .filter, .button {
+    font: inherit; font-size: 14px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+    border-radius: 999px; padding: 8px 14px;
+  }
+  .filter[aria-pressed="true"] { background: var(--accent); color: #05202b; border-color: transparent; font-weight: 700; }
+  .button.primary { background: var(--accent); color: #05202b; border-color: transparent; font-weight: 700; }
+  .spacer { flex: 1 1 auto; }
+  .count { color: var(--muted); font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+  .card.changed { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(107, 227, 255, .25); }
+  .thumb {
+    width: 100%; aspect-ratio: 1 / 1; display: grid; place-items: center;
+    background:
+      linear-gradient(45deg, #141838 25%, transparent 25%) 0 0 / 18px 18px,
+      linear-gradient(-45deg, #141838 25%, transparent 25%) 0 9px / 18px 18px,
+      linear-gradient(45deg, transparent 75%, #141838 75%) 9px -9px / 18px 18px,
+      linear-gradient(-45deg, transparent 75%, #141838 75%) -9px 0 / 18px 18px,
+      #0f1330;
+    border-radius: 12px; overflow: hidden;
+  }
+  .thumb img { max-width: 92%; max-height: 92%; object-fit: contain; display: block; }
+  .name { font-size: 12px; color: var(--muted); margin: 9px 0 8px; word-break: break-all; min-height: 2.4em; }
+  .shapes { display: flex; flex-wrap: wrap; gap: 5px; }
+  .shape-btn {
+    font: inherit; font-size: 11.5px; cursor: pointer; padding: 5px 8px; border-radius: 8px;
+    border: 1px solid var(--line); background: #141838; color: var(--muted);
+  }
+  .shape-btn[aria-pressed="true"] { background: var(--shape-color, #fff); color: #10132c; border-color: transparent; font-weight: 700; }
+  .copy-note { color: var(--accent); font-size: 13px; }
+  textarea { width: 100%; height: 120px; margin-top: 14px; font-family: ui-monospace, monospace; font-size: 12px;
+    background: #0b0e22; color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Periksa hasil pemilahan gambar</h1>
+  <p class="lead">
+    Semua gambar di <code>assets/shapes/</code> sudah dipindahkan ke folder
+    <b>circle</b>, <b>square</b>, <b>rectangle</b>, <b>triangle</b> dan <b>star</b>
+    menurut bentuk garis luarnya. Kalau ada yang salah, klik nama bentuk yang benar pada kartunya.
+    Setelah selesai, tekan <b>Salin daftar koreksi</b> dan kirimkan daftarnya kepada saya
+    (tempel di chat) supaya folder dan <code>game.js</code> diperbaiki.
+  </p>
+
+  <div class="bar">
+    <button class="filter" data-shape="all" aria-pressed="true">SEMUA</button>
+    <button class="filter" data-shape="triangle" aria-pressed="false">▲ TRIANGLE</button>
+    <button class="filter" data-shape="circle" aria-pressed="false">● CIRCLE</button>
+    <button class="filter" data-shape="square" aria-pressed="false">■ SQUARE</button>
+    <button class="filter" data-shape="rectangle" aria-pressed="false">▰ RECTANGLE</button>
+    <button class="filter" data-shape="star" aria-pressed="false">★ STAR</button>
+    <button class="filter" data-shape="changed" aria-pressed="false">✱ DIUBAH</button>
+    <span class="spacer"></span>
+    <span class="count" id="count"></span>
+    <button class="button primary" id="copy">SALIN DAFTAR KOREKSI</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div id="out-block" class="hidden">
+    <p class="copy-note">Daftar koreksi (salin &amp; kirimkan):</p>
+    <textarea id="out" readonly></textarea>
+  </div>
+</div>
+
+<script>
+const shapeOrder = ['triangle', 'circle', 'square', 'rectangle', 'star'];
+const shapeInfo = {
+  triangle:  { label: 'TRIANGLE',  symbol: '▲', color: '#5df3ed' },
+  circle:    { label: 'CIRCLE',    symbol: '●', color: '#ff78c4' },
+  square:    { label: 'SQUARE',    symbol: '■', color: '#b89aff' },
+  rectangle: { label: 'RECTANGLE', symbol: '▰', color: '#81c7ff' },
+  star:      { label: 'STAR',      symbol: '★', color: '#ffdb6c' },
+};
+
+// Generated from the folders in assets/shapes — edit this list if you add pictures by hand.
+const pictures = [
+    {
+      "file": "1000426799.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426799.png"
+    },
+    {
+      "file": "1000426809.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426809.png"
+    },
+    {
+      "file": "1000426810.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426810.png"
+    },
+    {
+      "file": "1000426811.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426811.png"
+    },
+    {
+      "file": "1000426812.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426812.png"
+    },
+    {
+      "file": "1000426813.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426813.png"
+    },
+    {
+      "file": "1000426814.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426814.png"
+    },
+    {
+      "file": "1000426815.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426815.png"
+    },
+    {
+      "file": "1000426816.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426816.png"
+    },
+    {
+      "file": "1000426818.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426818.png"
+    },
+    {
+      "file": "1000426840.png",
+      "shape": "triangle",
+      "src": "assets/shapes/triangle/1000426840.png"
+    },
+    {
+      "file": "1000426833.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426833.png"
+    },
+    {
+      "file": "1000426835.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426835.png"
+    },
+    {
+      "file": "1000426851.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426851.png"
+    },
+    {
+      "file": "1000426870-2.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426870-2.png"
+    },
+    {
+      "file": "1000426870.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426870.png"
+    },
+    {
+      "file": "1000426871-2.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426871-2.png"
+    },
+    {
+      "file": "1000426871.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426871.png"
+    },
+    {
+      "file": "1000426872.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426872.png"
+    },
+    {
+      "file": "1000426873.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426873.png"
+    },
+    {
+      "file": "1000426874.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426874.png"
+    },
+    {
+      "file": "1000426875.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426875.png"
+    },
+    {
+      "file": "1000426876.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426876.png"
+    },
+    {
+      "file": "1000426877.png",
+      "shape": "circle",
+      "src": "assets/shapes/circle/1000426877.png"
+    },
+    {
+      "file": "1000426819.png",
+      "shape": "square",
+      "src": "assets/shapes/square/1000426819.png"
+    },
+    {
+      "file": "1000426820.png",
+      "shape": "square",
+      "src": "assets/shapes/square/1000426820.png"
+    },
+    {
+      "file": "1000426831.png",
+      "shape": "square",
+      "src": "assets/shapes/square/1000426831.png"
+    },
+    {
+      "file": "1000426832.png",
+      "shape": "square",
+      "src": "assets/shapes/square/1000426832.png"
+    },
+    {
+      "file": "1000426834.png",
+      "shape": "square",
+      "src": "assets/shapes/square/1000426834.png"
+    },
+    {
+      "file": "1000426838.png",
+      "shape": "rectangle",
+      "src": "assets/shapes/rectangle/1000426838.png"
+    },
+    {
+      "file": "1000426841.png",
+      "shape": "rectangle",
+      "src": "assets/shapes/rectangle/1000426841.png"
+    },
+    {
+      "file": "1000426845.png",
+      "shape": "rectangle",
+      "src": "assets/shapes/rectangle/1000426845.png"
+    },
+    {
+      "file": "1000426846.png",
+      "shape": "rectangle",
+      "src": "assets/shapes/rectangle/1000426846.png"
+    },
+    {
+      "file": "1000426847.png",
+      "shape": "rectangle",
+      "src": "assets/shapes/rectangle/1000426847.png"
+    },
+    {
+      "file": "1000426848.png",
+      "shape": "rectangle",
+      "src": "assets/shapes/rectangle/1000426848.png"
+    },
+    {
+      "file": "1000426849.png",
+      "shape": "rectangle",
+      "src": "assets/shapes/rectangle/1000426849.png"
+    },
+    {
+      "file": "1000426817.png",
+      "shape": "star",
+      "src": "assets/shapes/star/1000426817.png"
+    },
+    {
+      "file": "1000426880.png",
+      "shape": "star",
+      "src": "assets/shapes/star/1000426880.png"
+    },
+    {
+      "file": "1000426881.png",
+      "shape": "star",
+      "src": "assets/shapes/star/1000426881.png"
+    },
+    {
+      "file": "1000426882.png",
+      "shape": "star",
+      "src": "assets/shapes/star/1000426882.png"
+    },
+    {
+      "file": "1000426883.png",
+      "shape": "star",
+      "src": "assets/shapes/star/1000426883.png"
+    }
+  ];
+
+const assigned = Object.create(null);
+for (const item of pictures) assigned[item.file] = item.shape;
+
+const grid = document.getElementById('grid');
+const countLabel = document.getElementById('count');
+const outBlock = document.getElementById('out-block');
+const out = document.getElementById('out');
+let filter = 'all';
+
+function render() {
+  grid.replaceChildren();
+  let shown = 0;
+  for (const item of pictures) {
+    const current = assigned[item.file];
+    const changed = current !== item.shape;
+    if (filter === 'changed' && !changed) continue;
+    if (filter !== 'all' && filter !== 'changed' && filter !== current) continue;
+    shown += 1;
+
+    const card = document.createElement('div');
+    card.className = 'card' + (changed ? ' changed' : '');
+
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb';
+    const img = document.createElement('img');
+    img.src = item.src;
+    img.alt = item.file;
+    img.loading = 'lazy';
+    thumb.append(img);
+
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = item.file;
+
+    const buttons = document.createElement('div');
+    buttons.className = 'shapes';
+    for (const shape of shapeOrder) {
+      const info = shapeInfo[shape];
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'shape-btn';
+      button.textContent = info.symbol + ' ' + info.label;
+      button.style.setProperty('--shape-color', info.color);
+      button.setAttribute('aria-pressed', String(shape === current));
+      button.addEventListener('click', () => {
+        assigned[item.file] = shape;
+        render();
+      });
+      buttons.append(button);
+    }
+
+    card.append(thumb, name, buttons);
+    grid.append(card);
+  }
+  const changedCount = pictures.filter((item) => assigned[item.file] !== item.shape).length;
+  countLabel.textContent = `${shown} gambar ditampilkan · ${changedCount} diubah`;
+}
+
+document.querySelectorAll('.filter').forEach((button) => {
+  button.addEventListener('click', () => {
+    filter = button.dataset.shape;
+    document.querySelectorAll('.filter').forEach((other) => {
+      other.setAttribute('aria-pressed', String(other === button));
+    });
+    render();
+  });
+});
+
+document.getElementById('copy').addEventListener('click', async () => {
+  const changes = pictures
+    .filter((item) => assigned[item.file] !== item.shape)
+    .map((item) => ({ file: item.file, from: item.shape, to: assigned[item.file] }));
+  const text = JSON.stringify(changes, null, 2);
+  out.value = text;
+  outBlock.classList.remove('hidden');
+  try {
+    await navigator.clipboard.writeText(text);
+    document.getElementById('copy').textContent = 'TERSALIN ✔';
+    setTimeout(() => { document.getElementById('copy').textContent = 'SALIN DAFTAR KOREKSI'; }, 1800);
+  } catch (error) {
+    out.select();
+  }
+});
+
+render();
+</script>
+</body>
+</html>

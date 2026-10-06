@@ -27,13 +27,23 @@ The sound button mutes or unmutes music and effects. Short sound effects are syn
 
 Every shape comes with starter art in `assets/shapes/<shape>/`:
 
-| Shape | Starter pictures |
-| --- | --- |
-| triangle | pizza slice, party hat, mountain peak |
-| circle | orange, clock face |
-| square | gift box, window, snack cracker |
-| rectangle | story book, chocolate bar, envelope, bus |
-| star | magic wand, sheriff badge, space rocket |
+| Shape | Starter pictures | Uploaded pictures |
+| --- | --- | --- |
+| triangle | pizza slice, party hat, mountain peak | 11 |
+| circle | orange, clock face | 13 |
+| square | gift box, window, snack cracker | 5 |
+| rectangle | story book, chocolate bar, envelope, bus | 7 |
+| star | magic wand, sheriff badge, space rocket | 5 |
+
+The uploaded pictures were sorted into those folders from the loose files that used to sit
+directly in `assets/shapes/`. They were shrunk to at most 512 px wide so a round loads
+quickly on a classroom screen.
+
+### Checking the sort
+
+Open **`picture-sorter.html`** to see every picture next to the folder it was filed under.
+Click a different shape on a card to move it, then press **SALIN DAFTAR KOREKSI** and paste
+the copied list into a reply so the folders and `game.js` can be corrected.
 
 Add your own starter pictures by dropping files into the matching folder and listing their **relative** paths in `game.js`:
 
