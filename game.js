@@ -23,77 +23,87 @@ const shapeInfo = {
 // sub-directory (GitHub Pages, Netlify sub-paths, classroom intranet folders...).
 const shapeAssets = {
   triangle: [
+    // Photo objects
+    'assets/shapes/triangle/pizza-slice-photo.png',
+    'assets/shapes/triangle/watermelon-slice.png',
+    'assets/shapes/triangle/triangle-sandwich.png',
+    'assets/shapes/triangle/tortilla-chip.png',
+    'assets/shapes/triangle/triangle-clock.png',
+    'assets/shapes/triangle/warning-road-sign.png',
+    'assets/shapes/triangle/pyramid-puzzle-cube.png',
+    'assets/shapes/triangle/pyramid-eye.png',
+    'assets/shapes/triangle/drive-triangle-logo.png',
+    'assets/shapes/triangle/triangle-cartoon-buddy.png',
+    'assets/shapes/triangle/triangle-cartoon-fish.png',
+    // Drawn starter art
     'assets/shapes/triangle/pizza-slice.svg',
     'assets/shapes/triangle/party-hat.svg',
     'assets/shapes/triangle/mountain-peak.svg',
-    // pictures from assets/shapes, sorted into this folder
-    'assets/shapes/triangle/1000426799.png',
-    'assets/shapes/triangle/1000426809.png',
-    'assets/shapes/triangle/1000426810.png',
-    'assets/shapes/triangle/1000426811.png',
-    'assets/shapes/triangle/1000426812.png',
-    'assets/shapes/triangle/1000426813.png',
-    'assets/shapes/triangle/1000426814.png',
-    'assets/shapes/triangle/1000426815.png',
-    'assets/shapes/triangle/1000426816.png',
-    'assets/shapes/triangle/1000426818.png',
-    'assets/shapes/triangle/1000426840.png',
   ],
   circle: [
+    // Photo objects
+    'assets/shapes/circle/soccer-ball.png',
+    'assets/shapes/circle/glazed-donut.png',
+    'assets/shapes/circle/whole-pizza.png',
+    'assets/shapes/circle/round-wall-clock.png',
+    'assets/shapes/circle/rupiah-coin.png',
+    'assets/shapes/circle/full-moon.png',
+    'assets/shapes/circle/yin-yang.png',
+    'assets/shapes/circle/bull-round-logo.png',
+    // Drawn starter art
     'assets/shapes/circle/orange.svg',
     'assets/shapes/circle/clock-face.svg',
-    // pictures from assets/shapes, sorted into this folder
-    'assets/shapes/circle/1000426833.png',
-    'assets/shapes/circle/1000426835.png',
-    'assets/shapes/circle/1000426851.png',
-    'assets/shapes/circle/1000426870-2.png',
-    'assets/shapes/circle/1000426870.png',
-    'assets/shapes/circle/1000426871-2.png',
-    'assets/shapes/circle/1000426871.png',
-    'assets/shapes/circle/1000426872.png',
-    'assets/shapes/circle/1000426873.png',
-    'assets/shapes/circle/1000426874.png',
-    'assets/shapes/circle/1000426875.png',
-    'assets/shapes/circle/1000426876.png',
-    'assets/shapes/circle/1000426877.png',
   ],
   square: [
+    // Photo objects
+    'assets/shapes/square/chess-board.png',
+    'assets/shapes/square/square-wall-clock.png',
+    'assets/shapes/square/grilled-sandwich.png',
+    'assets/shapes/square/plaid-handkerchief.png',
+    'assets/shapes/square/attention-square-sign.png',
+    'assets/shapes/square/computer-processor.png',
+    'assets/shapes/square/roblox-logo.png',
+    'assets/shapes/square/earth-cube.png',
+    // Drawn starter art
     'assets/shapes/square/gift-box.svg',
     'assets/shapes/square/window-box.svg',
     'assets/shapes/square/snack-cracker.svg',
-    // pictures from assets/shapes, sorted into this folder
-    'assets/shapes/square/1000426819.png',
-    'assets/shapes/square/1000426820.png',
-    'assets/shapes/square/1000426831.png',
-    'assets/shapes/square/1000426832.png',
-    'assets/shapes/square/1000426834.png',
   ],
   rectangle: [
+    // Photo objects
+    'assets/shapes/rectangle/red-story-book.png',
+    'assets/shapes/rectangle/wooden-door.png',
+    'assets/shapes/rectangle/flat-television.png',
+    'assets/shapes/rectangle/playing-card.png',
+    'assets/shapes/rectangle/denmark-flag.png',
+    'assets/shapes/rectangle/philippine-flag.png',
+    'assets/shapes/rectangle/lunch-food-tray.png',
+    'assets/shapes/rectangle/tall-twin-towers.png',
+    // Drawn starter art
     'assets/shapes/rectangle/story-book.svg',
     'assets/shapes/rectangle/chocolate-bar.svg',
     'assets/shapes/rectangle/envelope-letter.svg',
     'assets/shapes/rectangle/bus-driver.svg',
-    // pictures from assets/shapes, sorted into this folder
-    'assets/shapes/rectangle/1000426838.png',
-    'assets/shapes/rectangle/1000426841.png',
-    'assets/shapes/rectangle/1000426845.png',
-    'assets/shapes/rectangle/1000426846.png',
-    'assets/shapes/rectangle/1000426847.png',
-    'assets/shapes/rectangle/1000426848.png',
-    'assets/shapes/rectangle/1000426849.png',
   ],
   star: [
+    // Photo objects
+    'assets/shapes/star/yellow-star.png',
+    'assets/shapes/star/starfish.png',
+    'assets/shapes/star/paper-star.png',
+    'assets/shapes/star/six-point-star.png',
+    // Drawn starter art
     'assets/shapes/star/magic-wand.svg',
     'assets/shapes/star/sheriff-badge.svg',
     'assets/shapes/star/space-rocket.svg',
-    // pictures from assets/shapes, sorted into this folder
-    'assets/shapes/star/1000426817.png',
-    'assets/shapes/star/1000426880.png',
-    'assets/shapes/star/1000426881.png',
-    'assets/shapes/star/1000426882.png',
-    'assets/shapes/star/1000426883.png',
   ],
 };
+
+// Roughly how often the picture that falls belongs to the shape the class is hunting.
+// Picking all five shapes with equal odds made the target appear only 1 time in 5, which
+// left long stretches with nothing to catch.
+const TARGET_SPAWN_SHARE = 0.5;
+// Hard guarantee: never let this many non-matching pictures fall in a row.
+const MAX_NON_TARGET_STREAK = 3;
 
 const GAME_DURATION_SECONDS = 120;
 const STARTING_LIVES = 3;
@@ -143,8 +153,15 @@ let audioContext = null;
 let uploadedAssets = [];
 let assetDatabase = null;
 let assetDatabaseUnavailable = false;
+let nonTargetStreak = 0;
+let catcherWidth = 0;
+let catcherHeight = 0;
 const fallingObjects = [];
 const heldDirections = { left: false, right: false };
+// One shuffled "bag" per shape so the same picture does not fall twice in a row.
+const spawnBags = new Map();
+// Pictures are decoded once and kept warm, so a falling object is never an empty frame.
+const imageCache = new Map();
 
 const keyToDirection = {
   ArrowLeft: 'left',
@@ -258,6 +275,91 @@ function getAssetsFor(shape) {
 function friendlyFileName(path) {
   const fileName = path.split('/').pop() || 'picture';
   return fileName.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+}
+
+// Warm the browser cache so the very first time a picture falls it is already decoded.
+// Without this the tile stays blank for a moment and the shape cannot be recognised.
+function preloadPicture(src) {
+  if (typeof src !== 'string' || !src || imageCache.has(src)) return;
+  const image = new Image();
+  image.decoding = 'async';
+  image.addEventListener('error', () => imageCache.delete(src), { once: true });
+  image.src = src;
+  imageCache.set(src, image);
+}
+
+function preloadStarterPictures() {
+  for (const shape of shapeOrder) {
+    for (const src of shapeAssets[shape] || []) preloadPicture(src);
+  }
+}
+
+function schedulePreload() {
+  const run = () => preloadStarterPictures();
+  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(run, { timeout: 1200 });
+  else window.setTimeout(run, 250);
+}
+
+// The library changed (upload/removal/restore), so the shuffled spawn bags are stale.
+function resetSpawnBags() {
+  spawnBags.clear();
+  nonTargetStreak = 0;
+}
+
+function shuffled(list) {
+  const copy = [...list];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swap = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swap]] = [copy[swap], copy[index]];
+  }
+  return copy;
+}
+
+// Draw the next picture for a shape from its bag; refill (and reshuffle) when empty.
+function takeAssetFor(shape) {
+  const assets = getAssetsFor(shape);
+  if (!assets.length) return null;
+  let bag = spawnBags.get(shape);
+  if (!Array.isArray(bag) || bag.length === 0) {
+    bag = shuffled(assets);
+    spawnBags.set(shape, bag);
+  }
+  const asset = bag.pop();
+  // The bag can hold a picture a teacher has just deleted; fall back to a fresh pick.
+  return assets.some((item) => item.id === asset.id) ? asset : assets[Math.floor(Math.random() * assets.length)];
+}
+
+function shapesWithPictures() {
+  return shapeOrder.filter((shape) => getAssetsFor(shape).length > 0);
+}
+
+// Weighted pick: about half of the pictures match the shape the class chose, and a
+// long run of non-matching pictures is impossible.
+function pickSpawnShape() {
+  const playable = shapesWithPictures();
+  if (!playable.length) return null;
+  if (!selectedShape || !playable.includes(selectedShape)) {
+    return playable[Math.floor(Math.random() * playable.length)];
+  }
+  const others = playable.filter((shape) => shape !== selectedShape);
+  if (!others.length) return selectedShape;
+  if (nonTargetStreak >= MAX_NON_TARGET_STREAK || Math.random() < TARGET_SPAWN_SHARE) {
+    nonTargetStreak = 0;
+    return selectedShape;
+  }
+  nonTargetStreak += 1;
+  return others[Math.floor(Math.random() * others.length)];
+}
+
+function measureCatcher() {
+  const bounds = catcher.getBoundingClientRect();
+  if (bounds.width) catcherWidth = bounds.width;
+  if (bounds.height) catcherHeight = bounds.height;
+}
+
+function catcherHalfWidth() {
+  if (!catcherWidth) measureCatcher();
+  return catcherWidth / 2;
 }
 
 function updateAssetCounts() {
@@ -388,6 +490,7 @@ async function importImages(shape, files) {
     }
   }
 
+  resetSpawnBags();
   updateAssetCounts();
   renderLibrary();
   const shapeLabel = shapeInfo[shape].label.toLowerCase();
@@ -410,6 +513,7 @@ async function removeUploadedAsset(id) {
   }
   URL.revokeObjectURL(asset.src);
   uploadedAssets = uploadedAssets.filter((item) => item.id !== id);
+  resetSpawnBags();
   updateAssetCounts();
   renderLibrary();
   setLibraryNote(`${asset.name} was removed from ${shapeInfo[asset.shape].label.toLowerCase()} pictures.`, true);
@@ -426,6 +530,7 @@ async function loadSavedAssets() {
     uploadedAssets = (savedRecords || [])
       .filter((record) => record && record.blob && shapeInfo[record.shape])
       .map((record) => ({ ...record, src: URL.createObjectURL(record.blob) }));
+    resetSpawnBags();
     updateAssetCounts();
     if (libraryDialog.open) renderLibrary();
   } catch (error) {
@@ -530,16 +635,16 @@ function stopBackgroundMusic() {
 
 music.addEventListener('error', () => { musicUnavailable = true; });
 
+// The ramp is spread over the whole two-minute round. The old curve reached 6x after
+// 50 seconds, which made pictures cross the arena faster than a child can react and
+// left more than a minute of unplayable round.
 function speedMultiplierAt(seconds) {
-  if (seconds < 10) return 1;
-  if (seconds < 15) return 1.5;
-  if (seconds < 25) return 2;
-  if (seconds < 30) return 2.5;
-  if (seconds < 35) return 3;
-  if (seconds < 40) return 3.5;
-  if (seconds < 45) return 4;
-  if (seconds < 50) return 4.5;
-  return 6;
+  if (seconds < 20) return 1;
+  if (seconds < 40) return 1.25;
+  if (seconds < 60) return 1.5;
+  if (seconds < 80) return 1.75;
+  if (seconds < 100) return 2;
+  return 2.25;
 }
 
 function formatSpeed(multiplier) {
@@ -605,7 +710,12 @@ function startRound(shape) {
   arena.classList.remove('wrong-shake');
   catcher.classList.remove('is-correct', 'is-wrong');
 
+  resetSpawnBags();
+  // The GET READY countdown doubles as a loading window for this round's pictures.
+  preloadStarterPictures();
+
   requestAnimationFrame(() => {
+    measureCatcher();
     const center = arena.clientWidth / 2;
     currentX = center;
     desiredX = center;
@@ -701,9 +811,9 @@ function spawnFallingObject() {
   const arenaHeight = arena.clientHeight;
   if (!arenaWidth || !arenaHeight) return;
 
-  const shape = shapeOrder[Math.floor(Math.random() * shapeOrder.length)];
-  const assets = getAssetsFor(shape);
-  const asset = assets[Math.floor(Math.random() * assets.length)];
+  const shape = pickSpawnShape();
+  if (!shape) return;
+  const asset = takeAssetFor(shape);
   if (!asset) return;
 
   const maxSize = Math.min(118, Math.max(78, arenaWidth * .095));
@@ -726,6 +836,7 @@ function spawnFallingObject() {
   const image = document.createElement('img');
   image.alt = '';
   image.draggable = false;
+  image.decoding = 'async';
   element.append(image);
   // A picture that cannot be loaded falls back to the shape symbol instead of
   // disappearing, so the arena is never empty and every round stays playable.
@@ -776,9 +887,11 @@ function gameLoop(now) {
   }
 
   const arenaHeight = arena.clientHeight;
-  const catcherHeight = catcher.getBoundingClientRect().height;
+  // Measured only when unknown instead of three times per frame, so a busy arena never
+  // thrashes layout and the round keeps a steady frame rate.
+  if (!catcherWidth || !catcherHeight) measureCatcher();
   const catcherTop = arenaHeight - catcherHeight - 5;
-  const catcherHalfWidth = catcher.getBoundingClientRect().width / 2;
+  const halfCatcher = catcherWidth / 2;
 
   for (let index = fallingObjects.length - 1; index >= 0; index -= 1) {
     const object = fallingObjects[index];
@@ -787,7 +900,7 @@ function gameLoop(now) {
     object.element.style.transform = `translate3d(0, ${object.y}px, 0)`;
 
     const overlapsCatcherVertically = object.y + object.size >= catcherTop && object.y <= catcherTop + catcherHeight * .58;
-    const overlapsCatcherHorizontally = Math.abs(object.x - currentX) <= catcherHalfWidth + object.size * .32;
+    const overlapsCatcherHorizontally = Math.abs(object.x - currentX) <= halfCatcher + object.size * .32;
     if (overlapsCatcherVertically && overlapsCatcherHorizontally) {
       handleCatch(object);
       object.element.remove();
@@ -810,7 +923,7 @@ function gameLoop(now) {
 
 function moveCatcher(deltaSeconds) {
   const width = arena.clientWidth;
-  const half = catcher.getBoundingClientRect().width / 2;
+  const half = catcherHalfWidth();
   if (!width) return;
   if (heldDirections.left !== heldDirections.right) {
     const direction = heldDirections.left ? -1 : 1;
@@ -963,7 +1076,7 @@ function returnToSelection() {
 
 function aimCatcherFromPointer(event) {
   const bounds = arena.getBoundingClientRect();
-  const half = catcher.getBoundingClientRect().width / 2;
+  const half = catcherHalfWidth();
   const minX = half + 9;
   const maxX = arena.clientWidth - half - 9;
   desiredX = Math.max(minX, Math.min(maxX, event.clientX - bounds.left));
@@ -1075,8 +1188,11 @@ document.addEventListener('visibilitychange', () => {
 });
 
 window.addEventListener('resize', () => {
+  catcherWidth = 0;
+  catcherHeight = 0;
   if (gameState === 'playing' || gameState === 'ready') {
-    const half = catcher.getBoundingClientRect().width / 2;
+    measureCatcher();
+    const half = catcherWidth / 2;
     const minX = half + 9;
     const maxX = arena.clientWidth - half - 9;
     currentX = Math.max(minX, Math.min(maxX, currentX));
@@ -1090,3 +1206,4 @@ updateAssetCounts();
 attachSelectionCardFallbacks();
 renderLibrary();
 loadSavedAssets();
+schedulePreload();

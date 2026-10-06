@@ -25,19 +25,22 @@ The sound button mutes or unmutes music and effects. Short sound effects are syn
 
 ## Pictures
 
-Every shape comes with starter art in `assets/shapes/<shape>/`:
+Every shape has its own folder in `assets/shapes/<shape>/`, and **every file in that folder
+falls as that shape**. The library that ships with the game:
 
-| Shape | Starter pictures | Uploaded pictures |
+| Shape | Pictures | What falls |
 | --- | --- | --- |
-| triangle | pizza slice, party hat, mountain peak | 11 |
-| circle | orange, clock face | 13 |
-| square | gift box, window, snack cracker | 5 |
-| rectangle | story book, chocolate bar, envelope, bus | 7 |
-| star | magic wand, sheriff badge, space rocket | 5 |
+| triangle | 14 | pizza slice, watermelon slice, sandwich, tortilla chip, triangle clock, road sign, pyramid puzzle, pyramid eye, triangle logo, two cartoon triangles, party hat, mountain peak |
+| circle | 10 | soccer ball, donut, pizza, wall clock, coin, full moon, yin-yang, round logo, orange, clock face |
+| square | 11 | chess board, square clock, grilled sandwich, handkerchief, warning sign, processor chip, square logo, cube, gift box, window, cracker |
+| rectangle | 12 | book, door, television, playing card, two flags, lunch tray, tall towers, story book, chocolate bar, envelope, bus |
+| star | 7 | yellow star, starfish, paper star, six-point star, magic wand, sheriff badge, space rocket |
 
-The uploaded pictures were sorted into those folders from the loose files that used to sit
-directly in `assets/shapes/`. They were shrunk to at most 512 px wide so a round loads
-quickly on a classroom screen.
+Every one of those raster pictures is one of the files that was originally uploaded loose
+into `assets/shapes/`. They were sorted into the folder matching their outline, shrunk to at
+most 512 px, and renamed after the object they show (`soccer-ball.png`, `denmark-flag.png`,
+`glazed-donut.png`, …). Transparent backgrounds were kept, and the two photos that arrived
+with a black or white background had that background removed.
 
 ### Checking the sort
 
@@ -45,7 +48,15 @@ Open **`picture-sorter.html`** to see every picture next to the folder it was fi
 Click a different shape on a card to move it, then press **SALIN DAFTAR KOREKSI** and paste
 the copied list into a reply so the folders and `game.js` can be corrected.
 
-Add your own starter pictures by dropping files into the matching folder and listing their **relative** paths in `game.js`:
+`assets/shapes/mixed/` holds pictures that show **several** shapes at once (the shape
+sticker sheet). They are deliberately not used as falling objects, because they have no
+single right answer.
+
+All raster pictures are stored at a maximum of 512 px and are preloaded in the background,
+so the whole library is about 1.4 MB and a picture is already decoded before it falls.
+
+Add your own starter pictures by dropping files into the matching folder and listing their
+**relative** paths in `game.js`:
 
 ```js
 const shapeAssets = {
@@ -77,3 +88,10 @@ Accepted teacher uploads can be PNG, JPG, GIF, SVG, and other browser-supported 
 ## Background music
 
 Place the optional `Rush E_1.mp3` file in the project root. The game will loop it during a round. If the file is missing or cannot play, the game continues normally with its built-in sound effects.
+
+## Round pacing
+
+A round is two minutes long. Pictures speed up gradually across the whole round
+(1x -> 2.25x, one step every 20 seconds) instead of spiking early, and about half of the
+pictures that fall belong to the shape the class is hunting - with a hard rule that never
+more than three non-matching pictures fall in a row.
