@@ -450,6 +450,25 @@ main { display: flex; flex: 1 0 auto; flex-direction: column; justify-content: c
   box-shadow: 0 0 10px var(--object-glow, rgba(85,244,243,.35)), 0 0 22px var(--object-glow, rgba(85,244,243,.19)), inset 0 1px 0 rgba(255,255,255,.13);
   animation: object-float 1.8s ease-in-out infinite alternate;
 }
+/* Emergency placeholder: if a picture file is missing, the shape symbol keeps
+   the falling object readable (and catchable) instead of an empty tile. */
+.missing-picture {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border: 2px dashed var(--object-color, var(--cyan));
+  border-radius: clamp(15px, 2vw, 22px);
+  color: var(--object-color, var(--cyan));
+  background: radial-gradient(ellipse at 50% 36%, rgba(36, 54, 88, .75), rgba(13, 24, 47, .93));
+  box-shadow: 0 0 10px var(--object-glow, rgba(85,244,243,.35)), 0 0 22px var(--object-glow, rgba(85,244,243,.19));
+  font-family: Arial, sans-serif;
+  font-size: clamp(28px, 3.6vw, 46px);
+  line-height: 1;
+  text-shadow: 0 0 14px var(--object-glow, rgba(85,244,243,.4));
+}
+.missing-picture.library-missing-picture { width: 38px; height: 38px; border-radius: 10px; font-size: 20px; }
+.missing-picture.card-missing-picture { width: 35px; height: 35px; border-radius: 10px; font-size: 18px; box-shadow: none; }
 .catcher {
   position: absolute;
   z-index: 4;

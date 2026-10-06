@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <defs>
+    <linearGradient id="clockrim" x1="36" y1="42" x2="144" y2="150" gradientUnits="userSpaceOnUse"><stop stop-color="#6FE9FF"/><stop offset="1" stop-color="#4E7CF0"/></linearGradient>
+    <radialGradient id="clockface" cx="0" cy="0" r="1" gradientTransform="matrix(0 -47 -47 0 92 96)" gradientUnits="userSpaceOnUse"><stop stop-color="#17305C"/><stop offset="1" stop-color="#0C1A38"/></radialGradient>
+  </defs>
+  <circle cx="92" cy="96" r="53" fill="url(#clockrim)" stroke="#D8FBFF" stroke-width="5"/>
+  <circle cx="92" cy="96" r="40" fill="url(#clockface)" stroke="#9DEBFF" stroke-width="4"/>
+  <path d="M92 62v34l22 15" stroke="#FFE066" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="92" cy="96" r="4" fill="#FF86D6"/>
+  <path d="M154 60c10-6 16-4 18 4-8 4-14 3-18-4Z" fill="#A9F276" stroke="#DBFFAE" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M46 146c8 5 12 10 13 18-9 1-15-3-16-11" fill="#B296FF" opacity=".8"/>
+</svg>

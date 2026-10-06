@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <defs><linearGradient id="cracker" x1="48" y1="52" x2="133" y2="140" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE07A"/><stop offset="1" stop-color="#F09A3E"/></linearGradient></defs>
+  <path d="M38 56h104v76H38z" fill="url(#cracker)" stroke="#FFF3B8" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M53 57h74v74H53z" stroke="#FFF7CF" stroke-width="4" opacity=".7"/>
+  <path d="M90 57v74M53 94h74" stroke="#FFD06A" stroke-width="4" opacity=".4"/>
+  <circle cx="70" cy="70" r="4" fill="#FF7C6A"/><circle cx="110" cy="70" r="4" fill="#FF7C6A"/>
+  <circle cx="70" cy="118" r="4" fill="#FF7C6A"/><circle cx="110" cy="118" r="4" fill="#FF7C6A"/>
+  <circle cx="90" cy="94" r="5" fill="#FF5A73"/>
+  <path d="M40 42l6 6m94-6-6 6M148 142l-6-6M32 142l6-6" stroke="#69F3FF" stroke-width="4" stroke-linecap="round" opacity=".65"/>
+</svg>

@@ -16,12 +16,37 @@ const shapeInfo = {
 };
 
 // Starter image assets. Add more paths to any list to give that shape more variety.
+// IMPORTANT: keep these paths RELATIVE (no leading "/"). A leading slash points at the
+// root of the host, so on a file:// page it resolves to file:///assets/... and on a
+// project page such as https://user.github.io/catching/ it resolves to the wrong folder.
+// Relative paths work everywhere: opened from disk, served from a folder, or hosted in a
+// sub-directory (GitHub Pages, Netlify sub-paths, classroom intranet folders...).
 const shapeAssets = {
-  triangle: ['/assets/shapes/triangle/pizza-slice.svg'],
-  circle: ['/assets/shapes/circle/orange.svg'],
-  square: ['/assets/shapes/square/gift-box.svg'],
-  rectangle: ['/assets/shapes/rectangle/story-book.svg'],
-  star: ['/assets/shapes/star/magic-wand.svg'],
+  triangle: [
+    'assets/shapes/triangle/pizza-slice.svg',
+    'assets/shapes/triangle/party-hat.svg',
+    'assets/shapes/triangle/mountain-peak.svg',
+  ],
+  circle: [
+    'assets/shapes/circle/orange.svg',
+    'assets/shapes/circle/clock-face.svg',
+  ],
+  square: [
+    'assets/shapes/square/gift-box.svg',
+    'assets/shapes/square/window-box.svg',
+    'assets/shapes/square/snack-cracker.svg',
+  ],
+  rectangle: [
+    'assets/shapes/rectangle/story-book.svg',
+    'assets/shapes/rectangle/chocolate-bar.svg',
+    'assets/shapes/rectangle/envelope-letter.svg',
+    'assets/shapes/rectangle/bus-driver.svg',
+  ],
+  star: [
+    'assets/shapes/star/magic-wand.svg',
+    'assets/shapes/star/sheriff-badge.svg',
+    'assets/shapes/star/space-rocket.svg',
+  ],
 };
 
 const GAME_DURATION_SECONDS = 120;
@@ -65,6 +90,7 @@ let readyTimeout = 0;
 let currentX = 0;
 let desiredX = 0;
 let dragPointerId = null;
+let pausedAt = 0;
 let soundEnabled = true;
 let musicUnavailable = false;
 let audioContext = null;
@@ -114,17 +140,72 @@ function databaseRequest(storeName, mode, action) {
   });
 }
 
+// Every picture gets a short list of places to load from, so a leading-slash path or a
+// moved file still resolves instead of leaving an empty tile on screen.
+function assetSourceCandidates(src) {
+  if (typeof src !== 'string' || !src) return [];
+  const candidates = [src];
+  const relative = src.replace(/^\/+/, '');
+  if (relative && relative !== src) candidates.push(relative);
+  return candidates;
+}
+
+// Attaches an <img> to a tile and walks through its candidate sources. If none of them
+// load, `onAllFailed` draws a friendly fallback so the round never breaks.
+function attachPicture(image, sources, onAllFailed) {
+  const list = (sources || []).filter(Boolean);
+  let index = 0;
+  let finished = false;
+  const tryNextSource = () => {
+    if (finished) return; // browsers may fire "error" more than once for one picture
+    index += 1;
+    if (index < list.length) {
+      image.src = list[index];
+      return;
+    }
+    finished = true;
+    image.remove();
+    if (typeof onAllFailed === 'function') onAllFailed();
+  };
+  image.addEventListener('error', tryNextSource);
+  if (list.length) image.src = list[0];
+  else tryNextSource();
+  return list;
+}
+
+// A dropped picture shows the shape symbol instead, so children can still play and learn.
+function addFallbackGlyph(container, shape, extraClassName) {
+  const info = shapeInfo[shape];
+  const glyph = document.createElement('span');
+  glyph.className = `missing-picture ${extraClassName || ''}`.trim();
+  glyph.style.setProperty('--object-color', info.color);
+  glyph.style.setProperty('--object-glow', info.glow);
+  glyph.textContent = info.symbol;
+  glyph.setAttribute('aria-hidden', 'true');
+  container.append(glyph);
+  return glyph;
+}
+
+function warnMissingPicture(asset) {
+  console.warn(
+    `Shape Catcher: the picture "${asset.name}" (${asset.src}) could not be loaded, ` +
+      `so the ${shapeInfo[asset.shape].label.toLowerCase()} symbol is shown instead. ` +
+      'Check that the file exists under assets/ and that the path in shapeAssets is spelled correctly.',
+  );
+}
+
 function getAssetsFor(shape) {
   const builtInAssets = (shapeAssets[shape] || []).map((src, index) => ({
     id: `starter-${shape}-${index}`,
     shape,
     name: friendlyFileName(src),
     src,
+    sources: assetSourceCandidates(src),
     uploaded: false,
   }));
   const teacherAssets = uploadedAssets
     .filter((asset) => asset.shape === shape)
-    .map((asset) => ({ ...asset, uploaded: true }));
+    .map((asset) => ({ ...asset, sources: [asset.src], uploaded: true }));
   return [...builtInAssets, ...teacherAssets];
 }
 
@@ -180,13 +261,17 @@ function renderLibrary() {
       const item = document.createElement('div');
       item.className = 'library-item';
       const image = document.createElement('img');
-      image.src = asset.src;
       image.alt = `${asset.name}, for ${info.label.toLowerCase()}`;
       image.loading = 'lazy';
+      item.append(image);
+      attachPicture(image, asset.sources, () => {
+        addFallbackGlyph(item, shape, 'library-missing-picture');
+        warnMissingPicture(asset);
+      });
       const name = document.createElement('span');
       name.className = 'library-item-name';
       name.textContent = asset.name;
-      item.append(image, name);
+      item.append(name);
 
       if (asset.uploaded) {
         const remove = document.createElement('button');
@@ -457,6 +542,7 @@ function startRound(shape) {
   bestSpeed = 1;
   startedAt = 0;
   nextSpawnAt = 0;
+  pausedAt = 0;
   heldDirections.left = false;
   heldDirections.right = false;
   dragPointerId = null;
@@ -480,16 +566,61 @@ function startRound(shape) {
     catcher.style.left = `${center}px`;
   });
 
+  scheduleReadyCountdown();
+}
+
+function scheduleReadyCountdown(delay = READY_DURATION_MS) {
+  if (readyTimeout) window.clearTimeout(readyTimeout);
   readyTimeout = window.setTimeout(() => {
-    if (gameState !== 'ready') return;
-    gameState = 'playing';
-    readyOverlay.classList.add('is-leaving');
-    startedAt = performance.now();
-    lastFrameAt = startedAt;
-    nextSpawnAt = startedAt + 260;
+    readyTimeout = 0;
+    beginPlay();
+  }, delay);
+}
+
+function beginPlay() {
+  if (gameState !== 'ready') return;
+  gameState = 'playing';
+  readyOverlay.classList.add('is-leaving');
+  startedAt = performance.now();
+  lastFrameAt = startedAt;
+  nextSpawnAt = startedAt + 260;
+  startBackgroundMusic();
+  animationFrame = requestAnimationFrame(gameLoop);
+}
+
+// Switching tabs, opening the library or a teacher's pop-up should not eat the round:
+// the timer and the falling pictures freeze and then continue where they stopped.
+function pauseRound() {
+  if (pausedAt) return;
+  if (gameState === 'playing') {
+    pausedAt = performance.now();
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    heldDirections.left = false;
+    heldDirections.right = false;
+    dragPointerId = null;
+    try { music.pause(); } catch { /* optional background music */ }
+  } else if (gameState === 'ready') {
+    pausedAt = performance.now();
+    if (readyTimeout) window.clearTimeout(readyTimeout);
+    readyTimeout = 0;
+  }
+}
+
+function resumeRound() {
+  if (!pausedAt) return;
+  const pauseLength = performance.now() - pausedAt;
+  pausedAt = 0;
+  if (gameState === 'playing') {
+    startedAt += pauseLength;
+    nextSpawnAt += pauseLength;
+    lastFrameAt = performance.now();
     startBackgroundMusic();
-    animationFrame = requestAnimationFrame(gameLoop);
-  }, READY_DURATION_MS);
+    if (!animationFrame) animationFrame = requestAnimationFrame(gameLoop);
+  } else if (gameState === 'ready') {
+    // Play the GET READY countdown again from the top so nobody misses the start.
+    scheduleReadyCountdown();
+  }
 }
 
 function clearFallingObjects() {
@@ -519,7 +650,7 @@ function formatTime(secondsRemaining) {
   return `${minutes}:${seconds}`;
 }
 
-function spawnFallingObject(multiplier) {
+function spawnFallingObject() {
   const arenaWidth = arena.clientWidth;
   const arenaHeight = arena.clientHeight;
   if (!arenaWidth || !arenaHeight) return;
@@ -547,16 +678,15 @@ function spawnFallingObject(multiplier) {
   element.style.transform = `translate3d(0, ${-size}px, 0)`;
 
   const image = document.createElement('img');
-  image.src = asset.src;
   image.alt = '';
   image.draggable = false;
-  image.onerror = () => {
-    // A removed or unsupported teacher image is dropped harmlessly from this round.
-    element.remove();
-    const failedIndex = fallingObjects.findIndex((object) => object.element === element);
-    if (failedIndex >= 0) fallingObjects.splice(failedIndex, 1);
-  };
   element.append(image);
+  // A picture that cannot be loaded falls back to the shape symbol instead of
+  // disappearing, so the arena is never empty and every round stays playable.
+  attachPicture(image, asset.sources, () => {
+    addFallbackGlyph(element, shape);
+    warnMissingPicture(asset);
+  });
   fallingLayer.append(element);
 
   const baseSpeed = 148 + Math.random() * 42;
@@ -572,7 +702,7 @@ function spawnFallingObject(multiplier) {
 }
 
 function gameLoop(now) {
-  if (gameState !== 'playing') return;
+  if (gameState !== 'playing' || pausedAt) return;
   const deltaSeconds = Math.min((now - lastFrameAt) / 1000, .055);
   lastFrameAt = now;
   elapsedSeconds = (now - startedAt) / 1000;
@@ -594,7 +724,7 @@ function gameLoop(now) {
   moveCatcher(deltaSeconds);
 
   if (now >= nextSpawnAt) {
-    spawnFallingObject(speed);
+    spawnFallingObject();
     const spawnDelay = Math.max(620, 1460 / Math.sqrt(speed));
     nextSpawnAt = now + spawnDelay * (.78 + Math.random() * .45);
   }
@@ -721,6 +851,7 @@ function makeCatchEffects(x, y) {
 function finishRound(reason) {
   if (gameState !== 'playing') return;
   gameState = 'finished';
+  pausedAt = 0;
   if (animationFrame) cancelAnimationFrame(animationFrame);
   if (readyTimeout) window.clearTimeout(readyTimeout);
   heldDirections.left = false;
@@ -773,6 +904,7 @@ function returnToSelection() {
   if (readyTimeout) window.clearTimeout(readyTimeout);
   if (animationFrame) cancelAnimationFrame(animationFrame);
   gameState = 'idle';
+  pausedAt = 0;
   heldDirections.left = false;
   heldDirections.right = false;
   dragPointerId = null;
@@ -789,6 +921,28 @@ function aimCatcherFromPointer(event) {
   const minX = half + 9;
   const maxX = arena.clientWidth - half - 9;
   desiredX = Math.max(minX, Math.min(maxX, event.clientX - bounds.left));
+}
+
+// If a picture in the shape cards cannot be loaded, swap it for the shape symbol
+// so the selection screen still teaches the shape.
+function attachSelectionCardFallbacks() {
+  for (const card of document.querySelectorAll('[data-select-shape]')) {
+    const shape = card.dataset.selectShape;
+    const example = card.querySelector('.shape-card-example');
+    const image = example ? example.querySelector('img') : null;
+    if (!image) continue;
+    image.addEventListener('error', () => {
+      image.hidden = true;
+      if (!example.querySelector('.missing-picture')) {
+        addFallbackGlyph(example, shape, 'card-missing-picture');
+      }
+      warnMissingPicture({
+        name: friendlyFileName(image.getAttribute('src') || 'picture'),
+        src: image.getAttribute('src'),
+        shape,
+      });
+    });
+  }
 }
 
 for (const button of document.querySelectorAll('[data-select-shape]')) {
@@ -869,6 +1023,11 @@ arena.addEventListener('pointermove', (event) => {
 arena.addEventListener('pointercancel', () => { dragPointerId = null; });
 arena.addEventListener('lostpointercapture', () => { dragPointerId = null; });
 
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) pauseRound();
+  else resumeRound();
+});
+
 window.addEventListener('resize', () => {
   if (gameState === 'playing' || gameState === 'ready') {
     const half = catcher.getBoundingClientRect().width / 2;
@@ -882,5 +1041,6 @@ window.addEventListener('resize', () => {
 
 updateSoundButton();
 updateAssetCounts();
+attachSelectionCardFallbacks();
 renderLibrary();
 loadSavedAssets();
